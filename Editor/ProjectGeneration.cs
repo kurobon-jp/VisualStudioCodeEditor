@@ -428,7 +428,7 @@ namespace VSCodeEditor
         {
             if (Path.GetExtension(path) == ".csproj")
             {
-                //newContents = AssetPostprocessingInternal.CallOnGeneratedCSProject(path, newContents); TODO: Call specific code here
+                newContents = CallOnGeneratedCSProject(path, newContents);// TODO: Call specific code here
             }
 
             SyncFileIfNotChanged(path, newContents);
@@ -436,7 +436,7 @@ namespace VSCodeEditor
 
         void SyncSolutionFileIfNotChanged(string path, string newContents)
         {
-            //newContents = AssetPostprocessingInternal.CallOnGeneratedSlnSolution(path, newContents); TODO: Call specific code here
+            newContents = CallOnGeneratedSlnSolution(path, newContents);// TODO: Call specific code here
 
             SyncFileIfNotChanged(path, newContents);
         }
@@ -780,6 +780,20 @@ namespace VSCodeEditor
 
             if (!File.Exists(vsCodeSettingsJson))
                 File.WriteAllText(vsCodeSettingsJson, k_SettingsJson);
+        }
+
+        static string CallOnGeneratedCSProject(string path, string newContents)
+        {
+            var type = System.Reflection.Assembly.Load("UnityEditor").GetType("UnityEditor.AssetPostprocessingInternal");
+            var method = type.GetMethod("CallOnGeneratedCSProject", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            return (string)method.Invoke(null, new[] { path, newContents });
+        }
+
+        static string CallOnGeneratedSlnSolution(string path, string newContents)
+        {
+            var type = System.Reflection.Assembly.Load("UnityEditor").GetType("UnityEditor.AssetPostprocessingInternal");
+            var method = type.GetMethod("CallOnGeneratedSlnSolution", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            return (string)method.Invoke(null, new[] { path, newContents });
         }
     }
 
